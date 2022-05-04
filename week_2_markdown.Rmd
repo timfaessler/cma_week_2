@@ -48,15 +48,22 @@ Questions:
 
 How many individuals were tracked? -> 3
 For how long were the individual tracked? Are there gaps? -> Between about a half a year (Rosa) and about a year(Sabi).
-Were all individuals tracked concurrently or sequentially? -> concurrently
-What is the temporal sampling interval between the locations? -> the means of the timelags vary between ca. 27 min (Ruth) and ca. 21 min (Sabi). there seem to be a few outliers, especially in Ruths case, but the never are longer than ca. 17 hours so it still might not be seen as a too large of a gap.
+Were all individuals tracked concurrently or sequentially? -> Concurrently mostly
+What is the temporal sampling interval between the locations? -> The means of the timelags vary between ca. 27 min (Ruth) and ca. 21 min (Sabi). there seem to be a few outliers, especially in Ruths case, but the never are longer than ca. 17 hours so it still might not be seen as a too large of a gap.
 
 
 # Task 3
 
 ```{r}
+wildschwein <- wildschwein %>% mutate(steplength = sqrt( ((E - lead(E, 1))^2) + ((N - lead(N, 1))^2) ))
 
+wildschwein <- wildschwein %>% group_by(TierName) %>% mutate(speed = steplength/lead(timelag))
+
+summary(wildschwein$speed)
+
+wildschwein %>% group_by(TierName) %>% summarise(mean(speed, na.rm = T))
 ```
-
+Questions: 
+What speed unit do you get? -> The speed is in meter/second but could of course be changed to km/h. The variable (especially means of it or similar) however needs to be used with caution anyway because it sometimes is over a very large timeperiod like the 16+ hours of one timelag measure.
 
 
