@@ -18,6 +18,7 @@ library(ggplot2)      # to visualize data
 library(sf)           # to handle spatial vector data
 library(terra)        # To handle raster data
 library(lubridate)    # To handle dates and times
+library(zoo)
 
 wildschwein_BE <- read_delim("wildschwein_BE_2056.csv",",") 
 
@@ -120,4 +121,22 @@ ggplot() +
 Questions:
 
 Intrepret the plots -> In the caro 3 and caro 6 the main trajectories are being preserved and even "simplified" as only the most important "staying points" of Caro remain. In the 9 minute intervals you start to lose some information like the upper part, so that interval would be to big for this data. In the first plot you see a gradual smoothing of the speed which comes naturally with the smoothing or "simplification" of the spatial pattern of the following trajectories.
+
+# Task 5
+
+```{r}
+caro_k3 <- rollmean(caro$speed, k = 3, fill = NA, align = "left") %>% as_data_frame()
+caro_k4 <- rollmean(caro$speed, k = 4, fill = NA, align = "left") %>% as_data_frame()
+caro_k7 <- rollmean(caro$speed, k = 7, fill = NA, align = "left") %>% as_data_frame()
+caro_k10 <- rollmean(caro$speed, k = 10, fill = NA, align = "left") %>% as_data_frame()
+
+colors_legend_rolling = c("k3" = "blue", "k4" = "red", "k7" = "green", "k10" = "yellow")
+ggplot() +
+  geom_line(caro_k3, mapping = aes(caro$DatetimeUTC, value, color = "k3")) +
+  geom_line(caro_k4, mapping = aes(caro$DatetimeUTC, value, color = "k4")) +
+  geom_line(caro_k7, mapping = aes(caro$DatetimeUTC, value, color = "k7")) +
+  geom_line(caro_k10, mapping = aes(caro$DatetimeUTC, value, color = "k10"))
+
+```
+
 
