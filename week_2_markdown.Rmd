@@ -9,4 +9,54 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# Preparation
+
+```{r}
+library(readr)        # to import tabular data (e.g. csv)
+library(dplyr)        # to manipulate (tabular) data
+library(ggplot2)      # to visualize data
+library(sf)           # to handle spatial vector data
+library(terra)        # To handle raster data
+library(lubridate)    # To handle dates and times
+
+wildschwein_BE <- read_delim("wildschwein_BE_2056.csv",",") # adjust path
+
+wildschwein_BE <- st_as_sf(wildschwein_BE, coords = c("E", "N"), crs = 2056, remove = FALSE)
+```
+
+# Task 2
+
+```{r}
+
+wildschwein <- wildschwein_BE %>% group_by(TierName) %>% mutate(timelag = as.integer(difftime(DatetimeUTC, lag(DatetimeUTC), units = "secs" )))
+
+wildschwein %>% group_by(TierName) %>% summarise(mean(timelag, na.rm = TRUE))
+
+wildschwein
+
+summary(wildschwein$timelag)
+
+ggplot(wildschwein) +
+  geom_line(aes(DatetimeUTC, timelag, color = TierName))
+
+ggplot(wildschwein) +
+  geom_point(aes(DatetimeUTC, TierName))
+  
+
+```
+Questions:
+
+How many individuals were tracked? -> 3
+For how long were the individual tracked? Are there gaps? -> Between about a half a year (Rosa) and about a year(Sabi).
+Were all individuals tracked concurrently or sequentially? -> concurrently
+What is the temporal sampling interval between the locations? -> the means of the timelags vary between ca. 27 min (Ruth) and ca. 21 min (Sabi). there seem to be a few outliers, especially in Ruths case, but the never are longer than ca. 17 hours so it still might not be seen as a too large of a gap.
+
+
+# Task 3
+
+```{r}
+
+```
+
+
 
