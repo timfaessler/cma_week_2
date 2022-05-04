@@ -19,7 +19,7 @@ library(sf)           # to handle spatial vector data
 library(terra)        # To handle raster data
 library(lubridate)    # To handle dates and times
 
-wildschwein_BE <- read_delim("wildschwein_BE_2056.csv",",") # adjust path
+wildschwein_BE <- read_delim("wildschwein_BE_2056.csv",",") 
 
 wildschwein_BE <- st_as_sf(wildschwein_BE, coords = c("E", "N"), crs = 2056, remove = FALSE)
 ```
@@ -66,4 +66,58 @@ wildschwein %>% group_by(TierName) %>% summarise(mean(speed, na.rm = T))
 Questions: 
 What speed unit do you get? -> The speed is in meter/second but could of course be changed to km/h. The variable (especially means of it or similar) however needs to be used with caution anyway because it sometimes is over a very large timeperiod like the 16+ hours of one timelag measure.
 
+# Task 4
+
+```{r}
+caro <- read_delim("caro60.csv",",") 
+
+caro <- st_as_sf(caro, coords = c("E", "N"), crs = 2056, remove = FALSE)
+
+seq3 = seq(1, 200, by = 3)
+seq6 = seq(1, 200, by = 6)
+seq9 = seq(1, 200, by = 9)
+
+caro_3 = slice(caro, seq3)
+caro_6 = slice(caro, seq6)
+caro_9 = slice(caro, seq9)
+
+caro <- caro %>% mutate(timelag = as.integer(difftime(DatetimeUTC, lag(DatetimeUTC), units = "secs"))) %>% mutate(steplength = sqrt( ((E - lead(E, 1))^2) + ((N - lead(N, 1))^2) ) ) %>% mutate(speed = steplength/lead(timelag))
+
+caro_3 <- caro_3 %>% mutate(timelag = as.integer(difftime(DatetimeUTC, lag(DatetimeUTC), units = "secs"))) %>% mutate(steplength = sqrt( ((E - lead(E, 1))^2) + ((N - lead(N, 1))^2) ) ) %>% mutate(speed = steplength/lead(timelag))
+
+caro_6 <- caro_6 %>% mutate(timelag = as.integer(difftime(DatetimeUTC, lag(DatetimeUTC), units = "secs"))) %>% mutate(steplength = sqrt( ((E - lead(E, 1))^2) + ((N - lead(N, 1))^2) ) ) %>% mutate(speed = steplength/lead(timelag))
+
+caro_9 <- caro_9 %>% mutate(timelag = as.integer(difftime(DatetimeUTC, lag(DatetimeUTC), units = "secs"))) %>% mutate(steplength = sqrt( ((E - lead(E, 1))^2) + ((N - lead(N, 1))^2) ) ) %>% mutate(speed = steplength/lead(timelag))
+
+colors_legend = c("1 minute intervals" = "blue", "3 minute intervals" = "green", "6 minute intervals" = "red", "9 minute intervals" = "yellow")
+
+ggplot() +
+  geom_line(caro, mapping = aes(DatetimeUTC, speed, color = "1 minute intervals")) +
+  geom_line(caro_3, mapping = aes(DatetimeUTC, speed, color = "3 minute intervals")) +
+  geom_line(caro_6, mapping = aes(DatetimeUTC, speed, color = "6 minute intervals")) +
+  geom_line(caro_9, mapping = aes(DatetimeUTC, speed, color = "9 minute intervals")) +
+  scale_color_manual(values = colors_legend)
+  
+ggplot() +
+  geom_point(caro, mapping = aes(E, N, color = "1 minute interval")) +
+  geom_path(caro, mapping = aes(E,N, color = "1 minute interval")) +
+  geom_point(caro_3, mapping = aes(E, N, color = "3 minute interval")) +
+  geom_path(caro_3, mapping = aes(E,N, color = "3 minute interval"))
+
+ggplot() +
+  geom_point(caro, mapping = aes(E, N, color = "1 minute interval")) +
+  geom_path(caro, mapping = aes(E,N, color = "1 minute interval")) +
+  geom_point(caro_6, mapping = aes(E, N, color = "6 minute interval")) +
+  geom_path(caro_6, mapping = aes(E,N, color = "6 minute interval"))
+
+ggplot() +
+  geom_point(caro, mapping = aes(E, N, color = "1 minute interval")) +
+  geom_path(caro, mapping = aes(E,N, color = "1 minute interval")) +
+  geom_point(caro_9, mapping = aes(E, N, color = "9 minute interval")) +
+  geom_path(caro_9, mapping = aes(E,N, color = "9 minute interval"))
+
+```
+Questions:
+
+Intrepret the plots -> In the caro 3 and caro 6 the main trajectories are being preserved and even "simplified" as only the most important "staying points" of Caro remain. In the 9 minute intervals you start to lose some information like the upper part, so that interval would be to big for this data. In the first plot you see a gradual smoothing of the speed which comes naturally with the smoothing or "simplification" of the spatial pattern of the following trajectories.
 
