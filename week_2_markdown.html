@@ -263,17 +263,9 @@ summary(wildschwein$speed)</code></pre>
 </div>
 <div id="task-4" class="section level1">
 <h1>Task 4</h1>
-<pre class="r"><code>caro &lt;- read_delim(&quot;caro60.csv&quot;,&quot;,&quot;) </code></pre>
-<pre><code>## Rows: 200 Columns: 6
-## -- Column specification --------------------------------------------------------
-## Delimiter: &quot;,&quot;
-## chr  (2): TierID, TierName
-## dbl  (3): CollarID, E, N
-## dttm (1): DatetimeUTC
-## 
-## i Use `spec()` to retrieve the full column specification for this data.
-## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre class="r"><code>caro &lt;- st_as_sf(caro, coords = c(&quot;E&quot;, &quot;N&quot;), crs = 2056, remove = FALSE)
+<pre class="r"><code>caro &lt;- read_delim(&quot;caro60.csv&quot;,&quot;,&quot;) 
+
+caro &lt;- st_as_sf(caro, coords = c(&quot;E&quot;, &quot;N&quot;), crs = 2056, remove = FALSE)
 
 seq3 = seq(1, 200, by = 3)
 seq6 = seq(1, 200, by = 6)
